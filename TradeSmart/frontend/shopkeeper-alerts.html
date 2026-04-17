@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopkeeper Alerts - TradeSmart</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container page-shell">
+        <section class="hero-panel">
+            <div>
+                <p class="eyebrow">Big Retailer Alerts</p>
+                <h1>Track Low Stock and Contact Shopkeepers</h1>
+                <p class="hero-copy">See which branch is running low, call the shopkeeper, and refill products before the shelf goes empty.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="secondary-link" href="dashboard.html">Back to Dashboard</a>
+                <a class="secondary-link" href="product.html">Manage Branch Products</a>
+                <button type="button" class="ghost-button" onclick="logoutUser()">Logout</button>
+            </div>
+        </section>
+
+        <section class="dashboard-metrics">
+            <div class="card metric-card">
+                <p class="metric-label">Branches Active</p>
+                <h3 id="bigRetailerShops">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Shopkeepers Tracked</p>
+                <h3 id="bigRetailerShopkeepers">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Low Stock Branches</p>
+                <h3 id="bigRetailerLowBranches">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Critical Items</p>
+                <h3 id="bigRetailerCriticalItems">0</h3>
+            </div>
+        </section>
+
+        <section class="grid-layout">
+            <div class="panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Urgent Calls</p>
+                        <h2>Shopkeeper Low Stock Notifications</h2>
+                    </div>
+                </div>
+                <div id="bigRetailerNotifications" class="alert-list">
+                    <div class="empty-state">No low stock notifications right now.</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Branch View</p>
+                        <h2>Critical Branch Status</h2>
+                    </div>
+                </div>
+                <div id="bigRetailerBranchBoard" class="alert-list">
+                    <div class="empty-state">Loading branch stock board...</div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>

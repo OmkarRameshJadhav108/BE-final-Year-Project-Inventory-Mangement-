@@ -13,6 +13,11 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  role: {
+    type: String,
+    enum: ["inventory_manager", "shopkeeper", "big_retailer", "manufacturer"],
+    default: "inventory_manager"
   }
 }, { timestamps: true });
 

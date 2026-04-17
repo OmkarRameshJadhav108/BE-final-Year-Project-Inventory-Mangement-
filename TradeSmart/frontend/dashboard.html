@@ -2,27 +2,154 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - TradeSmart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Manager Dashboard - TradeSmart</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Dashboard</h1>
-        <a href="product.html"><button>Manage Products</button></a>
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Total Price</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody id="ordersTableBody">
-                <!-- Orders will load here -->
-            </tbody>
-        </table>
+    <div class="container page-shell">
+        <section class="hero-panel">
+            <div>
+                <p class="eyebrow" id="dashboardEyebrow">Inventory Manager Dashboard</p>
+                <h1 id="dashboardTitle">Control Stock, Alerts, and Shop Flow</h1>
+                <p class="hero-copy" id="dashboardCopy">Track total inventory, catch low-stock risks early, and move directly into product planning and replenishment actions.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="secondary-link" id="dashboardProductsLink" href="product.html">Manage Products</a>
+                <a class="secondary-link" id="dashboardRetailerAlertsLink" href="#bigRetailerSection">Retailer Stock</a>
+                <a class="secondary-link" id="dashboardMapLink" href="https://www.google.com/maps" target="_blank" rel="noreferrer">Open Map</a>
+                <button type="button" class="ghost-button" onclick="logoutUser()">Logout</button>
+            </div>
+        </section>
+
+        <section class="dashboard-metrics" id="inventoryMetrics">
+            <div class="card metric-card">
+                <p class="metric-label">Total Products</p>
+                <h3 id="metricTotalProducts">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Units In Stock</p>
+                <h3 id="metricStockUnits">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Low Stock Items</p>
+                <h3 id="metricLowStock">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Stock Value</p>
+                <h3 id="metricStockValue">Rs. 0.00</h3>
+            </div>
+        </section>
+
+        <section class="grid-layout">
+            <div class="panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Priority View</p>
+                        <h2>Low Stock Priority</h2>
+                    </div>
+                </div>
+                <div id="inventoryLowStockList" class="alert-list">
+                    <div class="empty-state">No low stock products right now.</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Orders Overview</p>
+                        <h2>Recent Orders</h2>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Branch</th>
+                                <th>Products</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Placed</th>
+                                <th>Expected</th>
+                                <th>Actual</th>
+                                <th>Total Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr>
+                                <td colspan="10">Loading recent orders...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-metrics" id="bigRetailerMetrics">
+            <div class="card metric-card">
+                <p class="metric-label">Branches Active</p>
+                <h3 id="bigRetailerShops">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Shopkeepers Tracked</p>
+                <h3 id="bigRetailerShopkeepers">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Low Stock Branches</p>
+                <h3 id="bigRetailerLowBranches">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Critical Items</p>
+                <h3 id="bigRetailerCriticalItems">0</h3>
+            </div>
+        </section>
+
+        <section class="panel" id="bigRetailerSection">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Retailer Stock</p>
+                    <h2>Low Stock Refill Control</h2>
+                </div>
+            </div>
+
+            <div class="retailer-alert-box" id="bigRetailerAlertBox">
+                No low stock items right now.
+            </div>
+
+            <div class="table-wrap">
+                <table class="retailer-stock-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Branch</th>
+                            <th>Shopkeeper</th>
+                            <th>Phone</th>
+                            <th>Stock</th>
+                            <th>Min Limit</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bigRetailerStockTable">
+                        <tr>
+                            <td colspan="8">Loading retailer stock alerts...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-head retailer-board-head">
+                <div>
+                    <p class="eyebrow">Branch View</p>
+                    <h2>Critical Branch Status</h2>
+                </div>
+            </div>
+            <div id="bigRetailerBranchBoard" class="alert-list">
+                <div class="empty-state">Loading branch stock board...</div>
+            </div>
+        </section>
     </div>
     <script src="js/app.js"></script>
 </body>

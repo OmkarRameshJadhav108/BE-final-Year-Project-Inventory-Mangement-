@@ -10,11 +10,11 @@
     <div class="container page-shell">
         <section class="hero-panel">
             <div>
-                <p class="eyebrow">Retailer Stock Control</p>
-                <h1>Manage Products</h1>
-                <p class="hero-copy">Track daily sold units, watch low stock live, and prepare a mobile alert message before stock runs out in the shop.</p>
+                <p class="eyebrow" id="productPageEyebrow">Retailer Stock Control</p>
+                <h1 id="productPageTitle">Manage Products</h1>
+                <p class="hero-copy" id="productPageCopy">Track daily sold units, watch low stock live, and prepare a mobile alert message before stock runs out in the shop.</p>
             </div>
-            <a class="secondary-link" href="dashboard.html">Back to Dashboard</a>
+            <a class="secondary-link" id="productBackLink" href="dashboard.html">Back to Dashboard</a>
         </section>
 
         <section class="grid-layout">
@@ -26,20 +26,43 @@
                     <input type="text" id="productCategory" placeholder="Category" required>
                     <input type="number" id="productStock" placeholder="Opening Stock" min="0" required>
                     <input type="number" id="productThreshold" placeholder="Low Stock Alert Level" min="0" value="5" required>
+                    <input type="text" id="productShopName" placeholder="Shop / Branch Name">
+                    <input type="text" id="productShopAddress" placeholder="Branch Address / Location">
+                    <input type="text" id="productShopkeeper" placeholder="Assigned Shopkeeper Name">
+                    <input type="tel" id="productShopkeeperPhone" placeholder="Shopkeeper Mobile Number">
+                    <input type="text" id="productShopkeeperGstin" placeholder="Shopkeeper GSTIN">
+                    <input type="text" id="productDriverName" placeholder="Nearby Driver Name">
+                    <input type="tel" id="productDriverPhone" placeholder="Nearby Driver Mobile Number">
+                    <input type="text" id="productManufacturerName" placeholder="Manufacturer Team Name">
+                    <input type="tel" id="productManufacturerPhone" placeholder="Manufacturer Team Mobile Number">
+                    <select id="productPaymentMethod">
+                        <option value="UPI">Payment Method: UPI</option>
+                        <option value="Cash">Payment Method: Cash</option>
+                        <option value="Card">Payment Method: Card</option>
+                        <option value="Bank Transfer">Payment Method: Bank Transfer</option>
+                        <option value="Credit">Payment Method: Credit</option>
+                    </select>
                     <button type="submit">Add Product</button>
                 </form>
+
+                <div class="preset-block">
+                    <p class="helper-text">Common shop products</p>
+                    <div id="productPresets" class="preset-grid"></div>
+                </div>
             </div>
 
             <div class="panel">
                 <h2>Mobile Stock Alert</h2>
                 <form class="stacked-form compact-form" onsubmit="saveAlertSettings(event)">
-                    <input type="text" id="shopOwnerName" placeholder="Shop Owner Name">
-                    <input type="tel" id="shopMobile" placeholder="Mobile Number for stock alerts">
+                    <input type="text" id="retailerName" placeholder="Retailer / Inventory Manager Name">
+                    <input type="tel" id="retailerMobile" placeholder="Retailer WhatsApp Number">
+                    <input type="text" id="shopkeeperName" placeholder="Shopkeeper Name">
+                    <input type="tel" id="shopkeeperMobile" placeholder="Shopkeeper WhatsApp Number">
                     <button type="submit">Save Alert Contact</button>
                 </form>
-                <p class="helper-text">When any product goes below its alert level, TradeSmart will prepare a stock message for this number.</p>
+                <p class="helper-text">When any product goes below its alert level, TradeSmart will prepare separate WhatsApp messages for both retailer and shopkeeper. When stock becomes very low, WhatsApp drafts will open automatically.</p>
                 <div id="alertStatus" class="info-card muted-card">
-                    Save the mobile number once to generate ready-to-send stock warning messages.
+                    Save the WhatsApp numbers once to generate ready-to-send stock warning messages.
                 </div>
             </div>
         </section>
@@ -69,7 +92,9 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Image</th>
                             <th>Name</th>
+                            <th>Shop</th>
                             <th>Price</th>
                             <th>Category</th>
                             <th>Stock</th>
@@ -81,7 +106,41 @@
                     </thead>
                     <tbody id="productsTableBody">
                         <tr>
-                            <td colspan="8">Loading products...</td>
+                            <td colspan="10">Loading products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Order Details</p>
+                    <h2>Placed Refill Orders</h2>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Bill No</th>
+                            <th>Branch</th>
+                            <th>Products</th>
+                            <th>Quantity</th>
+                            <th>GSTIN</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Placed</th>
+                            <th>Expected</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productOrdersTableBody">
+                        <tr>
+                            <td colspan="11">Loading order details...</td>
                         </tr>
                     </tbody>
                 </table>

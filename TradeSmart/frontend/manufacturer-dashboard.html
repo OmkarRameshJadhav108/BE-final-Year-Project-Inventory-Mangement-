@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturer Dashboard - TradeSmart</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container page-shell">
+        <section class="hero-panel">
+            <div>
+                <p class="eyebrow">Manufacturer Dashboard</p>
+                <h1>Monitor Refill Requests from Retailers</h1>
+                <p class="hero-copy">See low-stock demand from branches, review retailer contact details, and coordinate replenishment with the delivery team.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="secondary-link" href="dashboard.html">Retailer Dashboard</a>
+                <a class="secondary-link" href="product.html">Manage Products</a>
+                <button type="button" class="ghost-button" onclick="logoutUser()">Logout</button>
+            </div>
+        </section>
+
+        <section class="dashboard-metrics">
+            <div class="card metric-card">
+                <p class="metric-label">Retailer Requests</p>
+                <h3 id="manufacturerRequests">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Critical Refills</p>
+                <h3 id="manufacturerCritical">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Branches Covered</p>
+                <h3 id="manufacturerBranches">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Manufacturers Tagged</p>
+                <h3 id="manufacturerTeams">0</h3>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Supply Queue</p>
+                    <h2>Retailer Refill Requests</h2>
+                </div>
+            </div>
+
+            <div class="retailer-alert-box" id="manufacturerAlertBox">
+                No manufacturer-side requests right now.
+            </div>
+
+            <div class="table-wrap">
+                <table class="retailer-stock-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Branch</th>
+                            <th>Address</th>
+                            <th>Stock</th>
+                            <th>Min Limit</th>
+                            <th>Retail Contact</th>
+                            <th>Driver</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manufacturerOrdersTable">
+                        <tr>
+                            <td colspan="8">Loading manufacturer requests...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Order Tracking</p>
+                    <h2>Manufacturer Shipment Orders</h2>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table class="retailer-stock-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Branch</th>
+                            <th>Products</th>
+                            <th>Status</th>
+                            <th>Expected</th>
+                            <th>Actual</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manufacturerShipmentTable">
+                        <tr>
+                            <td colspan="7">Loading shipment orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>

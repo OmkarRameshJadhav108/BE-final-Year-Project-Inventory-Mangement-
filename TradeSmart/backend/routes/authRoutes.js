@@ -11,7 +11,7 @@ router.post("/register", async (req, res) => {
     try {
         console.log("REGISTER BODY:", req.body); // ✅ DEBUG
 
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
@@ -27,12 +27,21 @@ router.post("/register", async (req, res) => {
         const newUser = new User({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: role || "inventory_manager"
         });
 
         await newUser.save();
 
-        res.status(201).json({ message: "User registered successfully" });
+        res.status(201).json({
+            message: "User registered successfully",
+            user: {
+                id: newUser._id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role
+            }
+        });
 
     } catch (err) {
         console.error("REGISTER ERROR:", err);
@@ -83,7 +92,8 @@ router.post("/login", async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: user.role || "inventory_manager"
             }
         });
 

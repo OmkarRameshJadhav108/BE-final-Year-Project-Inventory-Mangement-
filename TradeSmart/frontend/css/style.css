@@ -40,6 +40,10 @@ body {
     gap: 20px;
 }
 
+.auth-shell {
+    max-width: 840px;
+}
+
 .hero-panel,
 .panel,
 form,
@@ -56,6 +60,16 @@ table {
     justify-content: space-between;
     gap: 20px;
     align-items: flex-start;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .hero-copy {
@@ -109,6 +123,16 @@ h2 {
 
 .panel {
     padding: 22px;
+}
+
+.auth-panel {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.auth-copy {
+    margin-top: 14px;
+    color: var(--muted);
 }
 
 form {
@@ -170,6 +194,48 @@ button:hover {
     font-size: 0.95rem;
 }
 
+.preset-block {
+    margin-top: 18px;
+}
+
+.preset-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.preset-chip {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: #f1f6ff;
+    color: var(--primary-dark);
+    border: 1px solid #cfddf7;
+}
+
+.preset-chip:hover {
+    background: #e0ecff;
+}
+
+.preset-thumb,
+.product-thumb {
+    display: block;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 1px solid rgba(24, 49, 83, 0.08);
+    background: #f7fbff;
+}
+
+.preset-thumb {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+}
+
 .info-card {
     margin-top: 14px;
     padding: 14px 16px;
@@ -190,9 +256,36 @@ button:hover {
     margin-bottom: 16px;
 }
 
+.dashboard-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.metric-card {
+    text-align: left;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.metric-label {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+}
+
 .alert-list {
     display: grid;
     gap: 14px;
+}
+
+.retailer-alert-box {
+    background: #fff3cd;
+    border-left: 5px solid #ff9800;
+    color: #7a4b00;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    font-weight: 700;
 }
 
 .alert-item,
@@ -231,6 +324,15 @@ button:hover {
     font-weight: 600;
 }
 
+.inline-action-button {
+    width: auto;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #1f63d8;
+    color: #fff;
+    font-weight: 600;
+}
+
 .table-wrap {
     overflow-x: auto;
 }
@@ -258,6 +360,109 @@ table tr:hover {
     background-color: #f8fbff;
 }
 
+.retailer-stock-table tbody tr.low-stock-row {
+    background: #fff1f1;
+}
+
+.retailer-stock-table tbody tr.low-stock-row:hover {
+    background: #ffe3e3;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.status-pill.ok {
+    background: #e7f7ec;
+    color: #13673f;
+}
+
+.status-pill.low {
+    background: #ffe4e6;
+    color: #b91c1c;
+}
+
+.status-pill.placed {
+    background: #eef4ff;
+    color: #2457b7;
+}
+
+.status-pill.processing {
+    background: #fff4dc;
+    color: #9a6500;
+}
+
+.status-pill.shipped {
+    background: #e9f7ef;
+    color: #16734d;
+}
+
+.status-pill.delivered {
+    background: #ebfbf2;
+    color: #0f7a43;
+}
+
+.action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.action-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.action-chip.call {
+    background: #22c55e;
+    color: #fff;
+}
+
+.action-chip.whatsapp {
+    background: #f0f7ff;
+    color: #1448a0;
+    border-color: #cfe0fb;
+}
+
+.action-chip.map {
+    background: #eefaf2;
+    color: #146c43;
+    border-color: #cdebd8;
+}
+
+.action-chip.driver {
+    background: #fff7e8;
+    color: #9a5d00;
+    border-color: #f2dab0;
+}
+
+.action-chip.manufacturer {
+    background: #f3efff;
+    color: #5f3dc4;
+    border-color: #ddd1ff;
+}
+
+.retailer-board-head {
+    margin-top: 22px;
+}
+
+.reorder-form {
+    margin-top: 12px;
+}
+
 .stock-badge {
     display: inline-flex;
     border-radius: 999px;
@@ -271,6 +476,16 @@ table tr:hover {
 .stock-badge.low {
     background: var(--danger-soft);
     color: var(--danger);
+}
+
+.stock-badge.medium {
+    background: #fff1dd;
+    color: #bb6b00;
+}
+
+.stock-badge.healthy {
+    background: #e7f7ec;
+    color: #13673f;
 }
 
 .sales-form {
@@ -294,9 +509,57 @@ table tr:hover {
     gap: 4px;
 }
 
+.product-name-stack {
+    min-width: 180px;
+}
+
+.product-thumb {
+    width: 52px;
+    height: 52px;
+}
+
 .metric-note {
     color: var(--muted);
     font-size: 0.88rem;
+}
+
+.quick-sales-list {
+    display: grid;
+    gap: 12px;
+}
+
+.quick-sale-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: #fbfdff;
+}
+
+.stock-board-item {
+    border-radius: 18px;
+    padding: 16px;
+    color: #fff;
+}
+
+.stock-board-item.healthy {
+    background: linear-gradient(135deg, #1f9d55, #34c97b);
+}
+
+.stock-board-item.medium {
+    background: linear-gradient(135deg, #d98a00, #f4b740);
+}
+
+.stock-board-item.low {
+    background: linear-gradient(135deg, #cf2d3a, #f05c5c);
+}
+
+.stock-board-item .alert-meta,
+.stock-board-item .metric-note {
+    color: rgba(255, 255, 255, 0.88);
 }
 
 .empty-state {
@@ -325,6 +588,10 @@ table tr:hover {
         grid-template-columns: 1fr;
     }
 
+    .dashboard-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .hero-panel,
     .section-head {
         flex-direction: column;
@@ -351,9 +618,22 @@ table tr:hover {
         align-items: stretch;
     }
 
+    .dashboard-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-sale-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .sales-form button,
     .ghost-button,
     .secondary-link {
+        width: 100%;
+    }
+
+    .hero-actions {
         width: 100%;
     }
 }

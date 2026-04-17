@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopkeeper Dashboard - TradeSmart</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container page-shell">
+        <section class="hero-panel">
+            <div>
+                <p class="eyebrow">Shopkeeper Dashboard</p>
+                <h1>Sell Faster and Watch Daily Stock</h1>
+                <p class="hero-copy">Quickly update sold products, spot red alerts instantly, and keep the front shop running smoothly.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="secondary-link" href="product.html">Open Product Sales</a>
+                <button type="button" class="ghost-button" onclick="logoutUser()">Logout</button>
+            </div>
+        </section>
+
+        <section class="dashboard-metrics">
+            <div class="card metric-card">
+                <p class="metric-label">Sold Today</p>
+                <h3 id="shopkeeperSoldToday">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Items To Refill</p>
+                <h3 id="shopkeeperLowStock">0</h3>
+            </div>
+            <div class="card metric-card">
+                <p class="metric-label">Products Active</p>
+                <h3 id="shopkeeperProducts">0</h3>
+            </div>
+        </section>
+
+        <section class="grid-layout">
+            <div class="panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Fast Update</p>
+                        <h2>Quick Daily Sold Entry</h2>
+                    </div>
+                </div>
+                <div id="shopkeeperQuickSales" class="quick-sales-list">
+                    <div class="empty-state">Loading products...</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Stock Colors</p>
+                        <h2>Visual Inventory Health</h2>
+                    </div>
+                </div>
+                <div id="shopkeeperStockBoard" class="alert-list">
+                    <div class="empty-state">Loading stock board...</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Low Stock Orders</p>
+                    <h2>Quick Reorder to Retailer</h2>
+                </div>
+            </div>
+            <div id="shopkeeperOrderQueue" class="alert-list">
+                <div class="empty-state">Low stock products will appear here for quick ordering.</div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Bills & Tracking</p>
+                    <h2>Placed Orders and Auto Bills</h2>
+                </div>
+            </div>
+            <div id="shopkeeperPlacedOrders" class="alert-list">
+                <div class="empty-state">Placed orders and bills will appear here.</div>
+            </div>
+        </section>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>

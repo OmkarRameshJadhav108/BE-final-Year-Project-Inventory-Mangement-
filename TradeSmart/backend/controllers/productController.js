@@ -31,6 +31,16 @@ exports.addProduct = async (req, res) => {
       category: req.body.category,
       stock: Number(req.body.stock) || 0,
       lowStockThreshold: Number(req.body.lowStockThreshold) || 5,
+      shopName: req.body.shopName,
+      shopAddress: req.body.shopAddress,
+      assignedShopkeeper: req.body.assignedShopkeeper,
+      shopkeeperPhone: req.body.shopkeeperPhone,
+      shopkeeperGstin: req.body.shopkeeperGstin,
+      driverName: req.body.driverName,
+      driverPhone: req.body.driverPhone,
+      manufacturerName: req.body.manufacturerName,
+      manufacturerPhone: req.body.manufacturerPhone,
+      preferredPaymentMethod: req.body.preferredPaymentMethod,
       salesUpdatedAt: new Date(),
     });
 
