@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   addProduct,
   getProducts,
+  recordSale,
   updateProduct,
   deleteProduct
 } = require("../controllers/productController");
@@ -13,6 +14,9 @@ router.post("/", addProduct);
 
 // GET ALL PRODUCTS
 router.get("/", getProducts);
+
+// RECORD DAILY SALE
+router.post("/:id/sales", recordSale);
 
 // UPDATE PRODUCT
 router.put("/:id", updateProduct);

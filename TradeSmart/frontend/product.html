@@ -2,34 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products - TradeSmart</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Manage Products</h1>
-        <form onsubmit="addProduct(event)">
-            <input type="text" id="productName" placeholder="Product Name" required>
-            <input type="number" id="productPrice" placeholder="Price" required>
-            <input type="text" id="productCategory" placeholder="Category" required>
-            <input type="number" id="productStock" placeholder="Stock" required>
-            <button type="submit">Add Product</button>
-        </form>
+    <div class="container page-shell">
+        <section class="hero-panel">
+            <div>
+                <p class="eyebrow">Retailer Stock Control</p>
+                <h1>Manage Products</h1>
+                <p class="hero-copy">Track daily sold units, watch low stock live, and prepare a mobile alert message before stock runs out in the shop.</p>
+            </div>
+            <a class="secondary-link" href="dashboard.html">Back to Dashboard</a>
+        </section>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Category</th>
-                    <th>Stock</th>
-                </tr>
-            </thead>
-            <tbody id="productsTableBody">
-                <!-- Products will load here -->
-            </tbody>
-        </table>
+        <section class="grid-layout">
+            <div class="panel">
+                <h2>Add Product</h2>
+                <form class="stacked-form compact-form" onsubmit="addProduct(event)">
+                    <input type="text" id="productName" placeholder="Product Name" required>
+                    <input type="number" id="productPrice" placeholder="Price" min="0" step="0.01" required>
+                    <input type="text" id="productCategory" placeholder="Category" required>
+                    <input type="number" id="productStock" placeholder="Opening Stock" min="0" required>
+                    <input type="number" id="productThreshold" placeholder="Low Stock Alert Level" min="0" value="5" required>
+                    <button type="submit">Add Product</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Mobile Stock Alert</h2>
+                <form class="stacked-form compact-form" onsubmit="saveAlertSettings(event)">
+                    <input type="text" id="shopOwnerName" placeholder="Shop Owner Name">
+                    <input type="tel" id="shopMobile" placeholder="Mobile Number for stock alerts">
+                    <button type="submit">Save Alert Contact</button>
+                </form>
+                <p class="helper-text">When any product goes below its alert level, TradeSmart will prepare a stock message for this number.</p>
+                <div id="alertStatus" class="info-card muted-card">
+                    Save the mobile number once to generate ready-to-send stock warning messages.
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Stock Warnings</p>
+                    <h2>Low Stock Alerts</h2>
+                </div>
+                <button type="button" class="ghost-button" onclick="requestNotificationAccess()">Enable Browser Alerts</button>
+            </div>
+            <div id="lowStockList" class="alert-list">
+                <div class="empty-state">No low stock items right now.</div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Daily Sales</p>
+                    <h2>Manage Products</h2>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Sold Today</th>
+                            <th>Total Sold</th>
+                            <th>Alert Level</th>
+                            <th>Daily Sold Entry</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr>
+                            <td colspan="8">Loading products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
     <script src="js/app.js"></script>
 </body>
