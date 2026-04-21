@@ -57,3 +57,29 @@ exports.getOrders = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.updateOrderPayment = async (req, res) => {
+  try {
+    const update = {};
+
+    if (req.body.paymentMethod !== undefined) {
+      update.paymentMethod = req.body.paymentMethod;
+    }
+
+    if (req.body.paymentStatus !== undefined) {
+      update.paymentStatus = req.body.paymentStatus;
+    }
+
+    const order = await Order.findByIdAndUpdate(req.params.id, update, { new: true })
+      .populate("wholesaler")
+      .populate("products.product");
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json(order);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

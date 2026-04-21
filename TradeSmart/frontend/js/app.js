@@ -1,7 +1,10 @@
 const API_URL = "http://localhost:5000/api";
 const ALERT_SETTINGS_KEY = "tradesmart-alert-settings";
 const CRITICAL_ALERTS_KEY = "tradesmart-critical-alerts";
+const PRODUCTS_CACHE_KEY = "tradesmart-products-cache";
+const ORDERS_CACHE_KEY = "tradesmart-orders-cache";
 const VERY_LOW_STOCK_LIMIT = 2;
+const API_TIMEOUT_MS = 6000;
 
 const COMMON_PRODUCT_PRESETS = [
     { name: "Sugar", category: "Grocery", price: 45, stock: 100, lowStockThreshold: 10 },
@@ -15,9 +18,73 @@ const COMMON_PRODUCT_PRESETS = [
 let latestProducts = [];
 let notifiedLowStockIds = new Set();
 let latestOrders = [];
+let activePaymentOrderId = null;
+let activePaymentMethod = "UPI";
+
+function readCache(key) {
+    try {
+        return JSON.parse(localStorage.getItem(key) || "null");
+    } catch {
+        return null;
+    }
+}
+
+function writeCache(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+function fetchJsonWithTimeout(url, options = {}) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+
+    return fetch(url, { ...options, signal: controller.signal })
+        .finally(() => clearTimeout(timeout))
+        .then(async (res) => {
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || data.message || "Request failed");
+            }
+            return data;
+        });
+}
 
 function encodeSvg(svg) {
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function createPaymentQrSvg(label = "UPI") {
+    return encodeSvg(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+            <rect width="180" height="180" rx="24" fill="#ffffff"/>
+            <rect x="18" y="18" width="144" height="144" rx="18" fill="#f5f8ff" stroke="#cfe0fb"/>
+            <g fill="#183153">
+                <rect x="34" y="34" width="28" height="28"/>
+                <rect x="44" y="44" width="8" height="8" fill="#fff"/>
+                <rect x="118" y="34" width="28" height="28"/>
+                <rect x="128" y="44" width="8" height="8" fill="#fff"/>
+                <rect x="34" y="118" width="28" height="28"/>
+                <rect x="44" y="128" width="8" height="8" fill="#fff"/>
+                <rect x="76" y="34" width="10" height="10"/>
+                <rect x="92" y="34" width="10" height="10"/>
+                <rect x="76" y="50" width="10" height="10"/>
+                <rect x="92" y="50" width="10" height="10"/>
+                <rect x="76" y="76" width="10" height="10"/>
+                <rect x="92" y="76" width="10" height="10"/>
+                <rect x="108" y="76" width="10" height="10"/>
+                <rect x="124" y="76" width="10" height="10"/>
+                <rect x="76" y="92" width="10" height="10"/>
+                <rect x="108" y="92" width="10" height="10"/>
+                <rect x="124" y="92" width="10" height="10"/>
+                <rect x="76" y="108" width="10" height="10"/>
+                <rect x="92" y="108" width="10" height="10"/>
+                <rect x="124" y="108" width="10" height="10"/>
+                <rect x="76" y="124" width="10" height="10"/>
+                <rect x="108" y="124" width="10" height="10"/>
+                <rect x="124" y="124" width="10" height="10"/>
+            </g>
+            <text x="90" y="168" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#2457b7">${label}</text>
+        </svg>
+    `);
 }
 
 function createProductPhotoSvg(config) {
@@ -372,12 +439,14 @@ function buildMapLink(address) {
 
 function buildQuickOrderPayload(product, quantity) {
     const user = getCurrentUser();
+    const settings = getAlertSettings();
     const branchName = product.shopName || "Main Branch";
     const branchAddress = product.shopAddress || "";
     const shopkeeperName = product.assignedShopkeeper || user?.name || "Shopkeeper";
 
     return {
-        retailerName: "Retailer Team",
+        retailerName: settings.retailerName || "Retailer Team",
+        retailerPhone: settings.retailerMobile || "",
         shopkeeperName,
         branchName,
         branchAddress,
@@ -388,6 +457,32 @@ function buildQuickOrderPayload(product, quantity) {
         paymentStatus: "pending",
         shipmentStatus: "placed",
         trackingNote: `Quick low stock order for ${product.name}`,
+        expectedShipmentDate: new Date(Date.now() + (2 * 24 * 60 * 60 * 1000)).toISOString(),
+        products: [
+            {
+                product: product._id,
+                quantity
+            }
+        ]
+    };
+}
+
+function buildManufacturerOrderPayload(product, quantity) {
+    const settings = getAlertSettings();
+
+    return {
+        retailerName: settings.retailerName || "Retailer Team",
+        retailerPhone: settings.retailerMobile || "",
+        shopkeeperName: product.assignedShopkeeper || "Shopkeeper",
+        branchName: product.shopName || "Main Branch",
+        branchAddress: product.shopAddress || "",
+        shopkeeperGstin: product.shopkeeperGstin || "",
+        driverName: product.driverName || "",
+        driverPhone: product.driverPhone || "",
+        paymentMethod: product.preferredPaymentMethod || "UPI",
+        paymentStatus: "pending",
+        shipmentStatus: "processing",
+        trackingNote: `Manufacturer supply order for ${product.name}`,
         expectedShipmentDate: new Date(Date.now() + (2 * 24 * 60 * 60 * 1000)).toISOString(),
         products: [
             {
@@ -413,6 +508,21 @@ function submitLowStockOrder(product, quantity) {
     });
 }
 
+function submitManufacturerSupplyOrder(product, quantity) {
+    const payload = buildManufacturerOrderPayload(product, quantity);
+
+    return fetch(`${API_URL}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || "Failed to place manufacturer supply order");
+        return data;
+    });
+}
+
 function renderShopkeeperPlacedOrders(orders = latestOrders) {
     const container = document.getElementById("shopkeeperPlacedOrders");
     if (!container) return;
@@ -434,14 +544,15 @@ function renderShopkeeperPlacedOrders(orders = latestOrders) {
                       <div class="alert-meta">${escapeHtml(order.branchName || "Main Branch")} | ${escapeHtml(getOrderStatusLabel(order.shipmentStatus))}</div>
                       <div class="metric-note">${escapeHtml(productSummary)}</div>
                       <div class="metric-note">Placed: ${escapeHtml(formatDate(order.createdAt))} | Expected: ${escapeHtml(formatDate(order.expectedShipmentDate))} | Total: ${escapeHtml(formatCurrency(order.totalAmount))}</div>
-                      <div class="metric-note">GSTIN: ${escapeHtml(order.shopkeeperGstin || "-")} | Payment: ${escapeHtml(order.paymentMethod || "-")} (${escapeHtml(order.paymentStatus || "pending")})</div>
+                      <div class="metric-note">GST No: ${escapeHtml(order.shopkeeperGstin || "-")} | Payment: ${escapeHtml(order.paymentMethod || "-")} (${escapeHtml(order.paymentStatus || "pending")})</div>
                       <div class="alert-actions">
-                        <button type="button" class="inline-action-button" onclick="openOrderBill('${order._id}')">View Bill</button>
-                        ${mapLink ? `<a class="link-chip" href="${mapLink}" target="_blank" rel="noreferrer">Map</a>` : ""}
-                        ${driverLink ? `<a class="link-chip" href="${driverLink}">Driver</a>` : ""}
-                    </div>
-                </div>
-            `;
+                          <button type="button" class="inline-action-button" onclick="openOrderBill('${order._id}')">View Bill</button>
+                          <button type="button" class="inline-action-button" onclick="openPaymentModal('${order._id}')">Payment Options</button>
+                          ${mapLink ? `<a class="link-chip" href="${mapLink}" target="_blank" rel="noreferrer">Map</a>` : ""}
+                          ${driverLink ? `<a class="link-chip" href="${driverLink}">Driver</a>` : ""}
+                      </div>
+                  </div>
+              `;
         }).join("");
 }
 
@@ -512,7 +623,7 @@ function openOrderBill(orderId) {
                 <div class="meta">Branch: ${escapeHtml(order.branchName || "-")}</div>
                 <div class="meta">Address: ${escapeHtml(order.branchAddress || "-")}</div>
                 <div class="meta">Shopkeeper: ${escapeHtml(order.shopkeeperName || "-")}</div>
-                <div class="meta">Shopkeeper GSTIN: ${escapeHtml(order.shopkeeperGstin || "-")}</div>
+                <div class="meta">Shopkeeper GST No: ${escapeHtml(order.shopkeeperGstin || "-")}</div>
                 <div class="meta">Payment Method: ${escapeHtml(order.paymentMethod || "-")}</div>
                 <div class="meta">Payment Status: ${escapeHtml(order.paymentStatus || "pending")}</div>
                 <table>
@@ -535,6 +646,81 @@ function openOrderBill(orderId) {
         </html>
     `);
     billWindow.document.close();
+}
+
+function openPaymentModal(orderId) {
+    const order = latestOrders.find((item) => item._id === orderId);
+    if (!order) {
+        alert("Payment details not found for this order");
+        return;
+    }
+
+    activePaymentOrderId = orderId;
+    activePaymentMethod = order.paymentMethod || "UPI";
+
+    const modal = document.getElementById("paymentModal");
+    const title = document.getElementById("paymentModalTitle");
+    const statusSelect = document.getElementById("paymentStatusSelect");
+    const upiNote = document.getElementById("paymentUpiNote");
+
+    if (!modal || !title || !statusSelect || !upiNote) return;
+
+    title.textContent = `Choose Payment Method for ${order.billNumber || order._id}`;
+    statusSelect.value = order.paymentStatus || "pending";
+    upiNote.textContent = `UPI ID: tradesmart@upi | Amount: ${formatCurrency(order.totalAmount)}`;
+    selectPaymentMethod(activePaymentMethod);
+    modal.classList.remove("hidden");
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById("paymentModal");
+    if (modal) modal.classList.add("hidden");
+    activePaymentOrderId = null;
+}
+
+function selectPaymentMethod(method) {
+    activePaymentMethod = method;
+
+    const qrPreview = document.getElementById("paymentQrPreview");
+    if (qrPreview) {
+        qrPreview.innerHTML = `<img src="${createPaymentQrSvg(method)}" alt="${escapeHtml(method)} QR">`;
+    }
+
+    document.querySelectorAll(".payment-option").forEach((button) => {
+        button.classList.toggle("selected", button.textContent === method);
+    });
+}
+
+function savePaymentSelection() {
+    if (!activePaymentOrderId) {
+        alert("No order selected for payment");
+        return;
+    }
+
+    const paymentStatus = document.getElementById("paymentStatusSelect")?.value || "pending";
+
+    fetch(`${API_URL}/orders/${activePaymentOrderId}/payment`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            paymentMethod: activePaymentMethod,
+            paymentStatus
+        })
+    })
+    .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || "Failed to update payment");
+        return data;
+    })
+    .then(() => {
+        alert(`Payment option saved as ${activePaymentMethod}`);
+        closePaymentModal();
+        loadOrders();
+    })
+    .catch((err) => {
+        console.error(err);
+        alert(err.message);
+    });
 }
 
 function buildRetailerLowStockMessage(product) {
@@ -962,7 +1148,9 @@ function renderManufacturerDashboard(products) {
             const minLimit = Number(product.lowStockThreshold) || 0;
             const shopName = product.shopName || "Main Branch";
             const address = product.shopAddress || "No branch address";
-            const retailContact = product.shopkeeperPhone || product.manufacturerPhone || "";
+            const settings = getAlertSettings();
+            const retailerName = settings.retailerName || "Retailer Team";
+            const retailContact = settings.retailerMobile || product.shopkeeperPhone || "";
             const driverPhone = product.driverPhone || "";
             const requestMessage = `Manufacturer update needed for ${product.name} at ${shopName}. Current stock is ${stock} and alert limit is ${minLimit}.`;
             const mapLink = buildMapLink(address);
@@ -977,7 +1165,7 @@ function renderManufacturerDashboard(products) {
                     <td>${escapeHtml(address)}</td>
                     <td>${stock}</td>
                     <td>${minLimit}</td>
-                    <td>${escapeHtml(product.assignedShopkeeper || "Retail Team")} ${retailContact ? `<br><span class="metric-note">${escapeHtml(retailContact)}</span>` : ""}</td>
+                    <td>${escapeHtml(retailerName)} ${retailContact ? `<br><span class="metric-note">${escapeHtml(retailContact)}</span>` : ""}</td>
                     <td>${escapeHtml(product.driverName || "No driver")} ${driverPhone ? `<br><span class="metric-note">${escapeHtml(driverPhone)}</span>` : ""}</td>
                     <td>
                         <div class="action-group">
@@ -985,11 +1173,38 @@ function renderManufacturerDashboard(products) {
                             ${whatsappLink ? `<a class="action-chip whatsapp" href="${whatsappLink}" target="_blank" rel="noreferrer">WhatsApp</a>` : ""}
                             ${driverLink ? `<a class="action-chip driver" href="${driverLink}">Call Driver</a>` : ""}
                             ${mapLink ? `<a class="action-chip map" href="${mapLink}" target="_blank" rel="noreferrer">View Map</a>` : ""}
+                            <button type="button" class="inline-action-button" onclick="placeManufacturerSupplyOrder('${product._id}')">Place Supply Order</button>
                         </div>
                     </td>
                 </tr>
             `;
         }).join("");
+}
+
+function placeManufacturerSupplyOrder(productId) {
+    const product = latestProducts.find((item) => item._id === productId);
+    if (!product) {
+        alert("Product not found for manufacturer order");
+        return;
+    }
+
+    const suggestedQuantity = Math.max((Number(product.lowStockThreshold) || 1) * 3, 10);
+    const quantityInput = window.prompt(`Enter manufacturer supply quantity for ${product.name}`, String(suggestedQuantity));
+    if (quantityInput === null) {
+        return;
+    }
+
+    const quantity = Math.max(1, Number(quantityInput) || suggestedQuantity);
+
+    submitManufacturerSupplyOrder(product, quantity)
+    .then(() => {
+        alert(`Manufacturer supply order sent to retailer for ${product.name}`);
+        loadOrders();
+    })
+    .catch((err) => {
+        console.error(err);
+        alert(err.message);
+    });
 }
 
 function registerUser(e) {
@@ -1087,6 +1302,8 @@ function loadOrders() {
             const total = order.totalAmount ?? order.total;
             const mapLink = buildMapLink(order.branchAddress);
             const driverLink = buildTelLink(order.driverPhone);
+            const retailerLink = buildTelLink(order.retailerPhone);
+            const retailerWhatsapp = buildWhatsAppLink(order.retailerPhone, `Hello ${order.retailerName || "Retailer Team"}, I am checking the order ${order.billNumber || order._id} for ${productSummary}.`);
 
             if (table) {
                 table.innerHTML += `
@@ -1119,6 +1336,12 @@ function loadOrders() {
                 manufacturerTable.innerHTML += `
                     <tr>
                         <td>${order._id}</td>
+                        <td>
+                            <div class="metric-stack">
+                                <strong>${escapeHtml(order.retailerName || "-")}</strong>
+                                <span class="metric-note">${escapeHtml(order.retailerPhone || "-")}</span>
+                            </div>
+                        </td>
                         <td>${escapeHtml(order.branchName || "-")}</td>
                         <td>${productSummary}</td>
                         <td><span class="status-pill ${escapeHtml(order.shipmentStatus || "placed")}">${escapeHtml(getOrderStatusLabel(order.shipmentStatus))}</span></td>
@@ -1126,8 +1349,11 @@ function loadOrders() {
                         <td>${formatDate(order.actualShipmentDate)}</td>
                         <td>
                             <div class="action-group">
+                                ${retailerLink ? `<a class="action-chip call" href="${retailerLink}">Call Retailer</a>` : ""}
+                                ${retailerWhatsapp ? `<a class="action-chip whatsapp" href="${retailerWhatsapp}" target="_blank" rel="noreferrer">WhatsApp</a>` : ""}
                                 ${mapLink ? `<a class="action-chip map" href="${mapLink}" target="_blank" rel="noreferrer">Map</a>` : ""}
                                 ${driverLink ? `<a class="action-chip driver" href="${driverLink}">Driver</a>` : ""}
+                                <button type="button" class="inline-action-button" onclick="openOrderBill('${order._id}')">Bill</button>
                             </div>
                         </td>
                     </tr>
@@ -1138,12 +1364,20 @@ function loadOrders() {
                 productOrdersTable.innerHTML += `
                     <tr>
                         <td>${order._id}</td>
-                        <td>${escapeHtml(order.billNumber || "-")}</td>
+                        <td>
+                            ${order.billNumber
+                                ? `<button type="button" class="bill-link-button" onclick="openOrderBill('${order._id}')">${escapeHtml(order.billNumber)}</button>`
+                                : "-"}
+                        </td>
                         <td>${escapeHtml(order.branchName || "-")}</td>
                         <td>${productSummary}</td>
                         <td>${quantity}</td>
                         <td>${escapeHtml(order.shopkeeperGstin || "-")}</td>
-                        <td>${escapeHtml(order.paymentMethod || "-")} / ${escapeHtml(order.paymentStatus || "pending")}</td>
+                        <td>
+                            <button type="button" class="bill-link-button" onclick="openPaymentModal('${order._id}')">
+                                ${escapeHtml(order.paymentMethod || "-")} / ${escapeHtml(order.paymentStatus || "pending")}
+                            </button>
+                        </td>
                         <td><span class="status-pill ${escapeHtml(order.shipmentStatus || "placed")}">${escapeHtml(getOrderStatusLabel(order.shipmentStatus))}</span></td>
                         <td>${formatDate(order.createdAt || order.date)}</td>
                         <td>${formatDate(order.expectedShipmentDate)}</td>
@@ -1158,7 +1392,7 @@ function loadOrders() {
         }
 
         if (manufacturerTable && !manufacturerTable.innerHTML.trim()) {
-            manufacturerTable.innerHTML = `<tr><td colspan="7">No shipment orders yet.</td></tr>`;
+            manufacturerTable.innerHTML = `<tr><td colspan="8">No shipment orders yet.</td></tr>`;
         }
 
         if (productOrdersTable && !productOrdersTable.innerHTML.trim()) {

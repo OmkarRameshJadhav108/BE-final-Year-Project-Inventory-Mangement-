@@ -30,7 +30,7 @@
                     <input type="text" id="productShopAddress" placeholder="Branch Address / Location">
                     <input type="text" id="productShopkeeper" placeholder="Assigned Shopkeeper Name">
                     <input type="tel" id="productShopkeeperPhone" placeholder="Shopkeeper Mobile Number">
-                    <input type="text" id="productShopkeeperGstin" placeholder="Shopkeeper GSTIN">
+                    <input type="text" id="productShopkeeperGstin" placeholder="Shopkeeper GST No">
                     <input type="text" id="productDriverName" placeholder="Nearby Driver Name">
                     <input type="tel" id="productDriverPhone" placeholder="Nearby Driver Mobile Number">
                     <input type="text" id="productManufacturerName" placeholder="Manufacturer Team Name">
@@ -130,7 +130,7 @@
                             <th>Branch</th>
                             <th>Products</th>
                             <th>Quantity</th>
-                            <th>GSTIN</th>
+                            <th>GST No</th>
                             <th>Payment</th>
                             <th>Status</th>
                             <th>Placed</th>
@@ -146,6 +146,48 @@
                 </table>
             </div>
         </section>
+    </div>
+
+    <div class="payment-modal hidden" id="paymentModal">
+        <div class="payment-modal-card">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Payment Options</p>
+                    <h2 id="paymentModalTitle">Choose Payment Method</h2>
+                </div>
+                <button type="button" class="ghost-button" onclick="closePaymentModal()">Close</button>
+            </div>
+
+            <div class="payment-grid">
+                <button type="button" class="payment-option" onclick="selectPaymentMethod('UPI')">UPI</button>
+                <button type="button" class="payment-option" onclick="selectPaymentMethod('Net Banking')">Net Banking</button>
+                <button type="button" class="payment-option" onclick="selectPaymentMethod('Credit Card')">Credit Card</button>
+                <button type="button" class="payment-option" onclick="selectPaymentMethod('Debit Card')">Debit Card</button>
+                <button type="button" class="payment-option" onclick="selectPaymentMethod('Cash')">Cash</button>
+                <button type="button" class="payment-option" onclick="selectPaymentMethod('Other')">Other</button>
+            </div>
+
+            <div class="payment-qr-card">
+                <div id="paymentQrPreview" class="payment-qr-box"></div>
+                <div class="metric-stack">
+                    <strong>Scan QR for UPI</strong>
+                    <span class="metric-note" id="paymentUpiNote">UPI ID: tradesmart@upi</span>
+                </div>
+            </div>
+
+            <div class="metric-stack">
+                <label for="paymentStatusSelect"><strong>Payment Status</strong></label>
+                <select id="paymentStatusSelect">
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="partial">Partial</option>
+                </select>
+            </div>
+
+            <div class="alert-actions">
+                <button type="button" class="inline-action-button" onclick="savePaymentSelection()">Save Payment</button>
+            </div>
+        </div>
     </div>
     <script src="js/app.js"></script>
 </body>

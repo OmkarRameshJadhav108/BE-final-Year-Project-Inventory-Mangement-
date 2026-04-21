@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
   wholesaler: { type: mongoose.Schema.Types.ObjectId, ref: "Wholesaler" },
   retailerName: String,
+  retailerPhone: String,
   shopkeeperName: String,
   branchName: String,
   branchAddress: String,
